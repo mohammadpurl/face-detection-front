@@ -1,16 +1,16 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Instagram, Mail, Phone, MessageCircle } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* بخش اصلی */}
-      <div className="relative overflow-hidden">
+      <div className="relative flex-grow overflow-hidden">
         <div className="absolute inset-y-0 h-full w-full" aria-hidden="true">
           <div className="relative h-full">
             <svg
@@ -90,14 +90,6 @@ const Index = () => {
                   </a>
                 </div>
               </div>
-              <div className="hidden md:flex md:space-x-10 md:space-x-reverse">
-                {/* <a href="#features" className="font-medium text-gray-500 hover:text-gray-900">
-                  ویژگی‌ها
-                </a> */}
-                <a href="#how-it-works" className="font-medium text-gray-500 hover:text-gray-900">
-                  نحوه کارکرد
-                </a>
-              </div>
               <div className="hidden md:absolute md:flex md:items-center md:justify-end md:inset-y-0 md:left-0">
                 <span className="inline-flex rounded-md shadow">
                   {user ? (
@@ -121,8 +113,7 @@ const Index = () => {
                 <span className="block text-government-primary">احراز هویت تصویری</span>
               </h1>
               <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                ثبت تصاویر چهره با کیفیت بالا همراه با بررسی خودکار کیفیت.
-                سیستم ما با اطمینان از وضوح و موقعیت مناسب چهره، هویت شما را تأیید می‌کند.
+                این سامانه با هدف احراز هویت تصویری هوشمند و امن طراحی شده است و قرار است به عنوان بخشی از فرآیند ثبت‌نام یا احراز هویت برای خدمات داخلی دانشگاه اصفهان مورد استفاده قرار گیرد.
               </p>
               <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
                 {user ? (
@@ -168,71 +159,72 @@ const Index = () => {
         </div>
       </div>
 
-      
-
-      {/* بخش نحوه کارکرد */}
-      <div id="how-it-works" className="bg-white py-16 sm:py-24">
+      {/* فوتر با اطلاعات تماس */}
+      <footer className="bg-gray-800 text-white py-12 mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center">
-            <h2 className="text-base text-government-primary font-semibold tracking-wide uppercase">نحوه کارکرد</h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              ساده، سریع و قابل اعتماد
-            </p>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              فرآیند ثبت چهره ما برای سهولت استفاده و در عین حال حفظ استانداردهای بالا طراحی شده است.
-            </p>
-          </div>
-
-          <div className="mt-10">
-            <ol className="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-              <li className="relative">
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-government-primary text-white">۱</div>
-                <p className="mr-16 text-lg leading-6 font-medium text-gray-900">ایجاد حساب کاربری</p>
-                <p className="mt-2 mr-16 text-base text-gray-500">
-                  با یک نام کاربری و رمز عبور امن ثبت‌نام کنید و شروع کنید.
-                </p>
-              </li>
-              
-              <li className="relative">
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-government-primary text-white">۲</div>
-                <p className="mr-16 text-lg leading-6 font-medium text-gray-900">دسترسی به پنل کاربری</p>
-                <p className="mt-2 mr-16 text-base text-gray-500">
-                  به بخش دوربین بروید تا ثبت تصاویر چهره را شروع کنید.
-                </p>
-              </li>
-              
-              <li className="relative">
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-government-primary text-white">۳</div>
-                <p className="mr-16 text-lg leading-6 font-medium text-gray-900">ثبت و تأیید</p>
-                <p className="mt-2 mr-16 text-base text-gray-500">
-                  عکس خود را بگیرید، سیستم ما اطمینان حاصل می‌کند که الزامات کیفی را برآورده می‌کند.
-                </p>
-              </li>
-            </ol>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">درباره ما</h3>
+              <p className="text-gray-300">
+                سامانه احراز هویت تصویری دانشگاه اصفهان، با هدف تسهیل و امنیت در فرایندهای شناسایی و احراز هویت دانشجویان و کارکنان طراحی شده است.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">لینک‌های مفید</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://ui.ac.ir" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                    <span className="hover:underline">وب‌سایت دانشگاه</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                    <span className="hover:underline">راهنمای کاربری</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                    <span className="hover:underline">سؤالات متداول</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">تماس با ما</h3>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-3">
+                  <Phone className="h-5 w-5 text-government-secondary" />
+                  <span className="text-gray-300">۰۳۱-۳۷۹۳۴۵۶۷</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-government-secondary" />
+                  <a href="mailto:contact@ui.ac.ir" className="text-gray-300 hover:text-white transition-colors duration-200">contact@ui.ac.ir</a>
+                </li>
+                <li className="mt-6">
+                  <h4 className="text-md font-medium text-white mb-3">ما را در شبکه‌های اجتماعی دنبال کنید</h4>
+                  <div className="flex space-x-5 space-x-reverse">
+                    <a href="#" className="bg-gray-700 hover:bg-government-secondary p-3 rounded-full transition-colors duration-300">
+                      <MessageCircle className="h-5 w-5" />
+                    </a>
+                    <a href="#" className="bg-gray-700 hover:bg-government-secondary p-3 rounded-full transition-colors duration-300">
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
           
-          <div className="mt-16 flex justify-center">
-            {!user && (
-              <Button size="lg" className="bg-government-primary hover:bg-government-dark" asChild>
-                <Link to="/register">همین حالا شروع کنید</Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* فوتر */}
-      <footer className="bg-gray-50">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
-          <div className="mt-8 border-t border-gray-200 pt-8 md:flex md:items-center md:justify-between">
-            <div className="flex space-x-6 space-x-reverse md:order-2">
-              <p className="text-sm text-gray-400">سیاست حریم خصوصی</p>
-              <p className="text-sm text-gray-400">شرایط استفاده از خدمات</p>
-              <p className="text-sm text-gray-400">تماس با ما</p>
-            </div>
-            <p className="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
-              &copy; ۱۴۰۴ سامانه احراز هویت تصویری. تمامی حقوق محفوظ است.
+          <div className="mt-10 pt-8 border-t border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-gray-400">
+              &copy; ۱۴۰۴ سامانه احراز هویت تصویری دانشگاه اصفهان. تمامی حقوق محفوظ است.
             </p>
+            <div className="mt-4 md:mt-0 flex space-x-6 space-x-reverse">
+              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">سیاست حریم خصوصی</a>
+              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">شرایط استفاده از خدمات</a>
+            </div>
           </div>
         </div>
       </footer>

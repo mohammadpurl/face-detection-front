@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(loggedInUser);
-      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("authToken", data.access_token);
       
       toast({
         title: "ورود موفقیت‌آمیز",
@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(newUser);
-      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("authToken", data.access_token);
       
       toast({
         title: "ثبت‌نام موفقیت‌آمیز",

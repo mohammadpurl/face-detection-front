@@ -44,6 +44,7 @@ export const authApi = {
       });
       
       if (data.access_token) {
+        debugger;
         localStorage.setItem('authToken', data.access_token);
         // Decode token and extract user information
         const decodedToken = jwtDecode<DecodedToken>(data.access_token);
@@ -101,26 +102,55 @@ export const imageApi = {
   // ذخیره تصویر جدید
   saveImage: async (imageFile: File, userId: string) => {
     try {
+      // Validate file
+      if (!imageFile || !(imageFile instanceof File)) {
+        throw new Error('فایل نامعتبر است');
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!allowedTypes.includes(imageFile.type)) {
+        throw new Error('فرمت فایل باید jpg یا png باشد');
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (imageFile.size > maxSize) {
+        throw new Error('حجم فایل نباید بیشتر از 5 مگابایت باشد');
+      }
+
+      console.log("Uploading image to backend...", { 
+        userId,
+        fileName: imageFile.name,
+        fileType: imageFile.type,
+        fileSize: imageFile.size
+      });
+      
       const formData = new FormData();
-      formData.append('image', imageFile);
-      formData.append('userId', userId);
+      formData.append('file', imageFile);
       
       const token = localStorage.getItem('authToken');
-      
-      const response = await fetch(`${API_BASE_URL}/images/upload`, {
+      const response = await fetch(`${API_BASE_URL}user/upload-photo?user_id=${userId}`, {
         method: 'POST',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` }),
         },
         body: formData,
       });
-      
+      debugger;
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('Server error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
         throw new Error(errorData.message || `خطا در آپلود تصویر: ${response.status}`);
       }
-      
-      return await response.json();
+      debugger;
+      const result = await response.json();
+      console.log("Image uploaded successfully:", result);
+      return result;
     } catch (error) {
       console.error('خطا در ذخیره تصویر:', error);
       throw error;
@@ -130,10 +160,11 @@ export const imageApi = {
   // دریافت تصاویر کاربر
   getUserImages: async (userId: string) => {
     try {
-      return await fetchWithAuth(`/images/user/${userId}`);
+      return await fetchWithAuth(`user/images/${userId}`);
     } catch (error) {
       console.error('خطا در دریافت تصاویر کاربر:', error);
       throw error;
     }
   },
 };
+

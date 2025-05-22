@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { detectBlur, isFaceFrontal, canvasToFile, storeImage } from "@/utils/faceDetection";
@@ -13,9 +12,10 @@ import CameraControls from "./camera/CameraControls";
 
 interface FaceCameraProps {
   onCapture?: (result: { success: boolean; imageUrl: string; timestamp: string }) => void;
+  active?: boolean;
 }
 
-const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
+const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture, active = true }) => {
   const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,17 +39,23 @@ const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
 
   // Start camera on component mount
   useEffect(() => {
-    initCamera();
+    if (active && !captureResult.image) {
+      initCamera();
+    } else if (!active || captureResult.image) {
+      stopCamera();
+    }
     
     // Cleanup on unmount
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      stopCamera();
     };
-  }, []);
+  }, [active, captureResult.image]);
 
   const initCamera = async () => {
+    console.log("Initializing camera...");
+    // Stop any existing streams first
+    stopCamera();
+    
     const mediaStream = await startCameraStream();
     
     if (mediaStream) {
@@ -69,22 +75,49 @@ const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
     }
   };
 
+  const stopCamera = () => {
+    console.log("Stopping camera...");
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Track ${track.kind} stopped`);
+      });
+      setStream(null);
+      setIsCameraReady(false);
+    }
+  };
+
   // Capture photo from video stream
   const capturePhoto = async () => {
-    if (!videoRef.current || !canvasRef.current || !user) return;
+    if (!videoRef.current || !canvasRef.current || !user) {
+      toast({
+        variant: "destructive",
+        title: "خطا",
+        description: "کاربر یا دوربین آماده نیست.",
+      });
+      return;
+    }
     
     setIsCapturing(true);
     
     try {
+      console.log("Capturing photo...");
+      
       // Draw current video frame to canvas
       const imageData = drawVideoToCanvas(videoRef.current, canvasRef.current);
-      if (!imageData) throw new Error("Could not process image data");
+      if (!imageData) {
+        throw new Error("Could not process image data");
+      }
+      
+      console.log("Image data captured, performing quality checks...");
       
       // Perform quality checks
       const [blurResult, frontalResult] = await Promise.all([
         detectBlur(imageData),
         isFaceFrontal(imageData),
       ]);
+      
+      console.log("Quality checks results:", { blurResult, frontalResult });
       
       const imageBase64 = canvasRef.current.toDataURL("image/jpeg");
       
@@ -96,38 +129,59 @@ const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
         frontalConfidence: frontalResult.confidence,
       });
       
+      // Stop the camera after capturing the image
+      stopCamera();
+      
       // Check if image passes quality requirements
       const passesQualityCheck = !blurResult.isBlurry && frontalResult.isFrontal;
       
       if (passesQualityCheck) {
-        // Convert canvas to file and store the image
-        const imageFile = await canvasToFile(canvasRef.current);
-        const result = await storeImage(user.id, imageFile);
-        
-        toast({
-          title: "Photo captured",
-          description: "Your photo has been saved successfully.",
-        });
-        
-        if (onCapture) {
-          onCapture(result);
+        console.log("Image passes quality checks. Storing image...");
+        try {
+          // Convert canvas to file and store the image
+          const imageFile = await canvasToFile(canvasRef.current);
+          console.log("Image file created, uploading to backend...");
+          const result = await storeImage(user.id, imageFile);
+          
+          console.log("Upload result:", result);
+          
+          toast({
+            title: "عکس ذخیره شد",
+            description: "تصویر چهره شما با موفقیت در سرور ذخیره شد.",
+          });
+          
+          if (onCapture) {
+            onCapture(result);
+          }
+        } catch (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          toast({
+            variant: "destructive",
+            title: "خطا در آپلود",
+            description: "ذخیره تصویر در سرور با خطا مواجه شد.",
+          });
         }
       } else {
         // Show quality issues
+        console.log("Image failed quality checks:", {
+          isBlurry: blurResult.isBlurry,
+          isFrontal: frontalResult.isFrontal
+        });
+        
         toast({
           variant: "destructive",
-          title: "Photo quality issues",
+          title: "مشکل کیفیت تصویر",
           description: blurResult.isBlurry 
-            ? "The image is too blurry. Please try again." 
-            : "Please face the camera directly.",
+          ? "تصویر تار است. لطفا دوباره تلاش کنید." 
+          : "لطفا مستقیم به دوربین نگاه کنید.",
         });
       }
     } catch (error) {
       console.error("Error capturing photo:", error);
       toast({
         variant: "destructive",
-        title: "Capture failed",
-        description: "Could not process the photo. Please try again.",
+        title: "خطا در ثبت تصویر",
+        description: "پردازش تصویر با مشکل مواجه شد. لطفا دوباره تلاش کنید.",
       });
     } finally {
       setIsCapturing(false);
@@ -136,6 +190,7 @@ const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
 
   // Reset capture state to try again
   const resetCapture = () => {
+    console.log("Resetting camera...");
     setCaptureResult({
       image: null,
       isBlurry: false,
@@ -143,24 +198,26 @@ const FaceCamera: React.FC<FaceCameraProps> = ({ onCapture }) => {
       blurScore: 0,
       frontalConfidence: 0,
     });
+    // Camera will be re-initialized via the useEffect when captureResult.image changes
   };
 
   const isLowQuality = captureResult.isBlurry || !captureResult.isFrontal;
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      <div className="camera-container aspect-video">
+      <div className="camera-container aspect-video relative">
         {/* Video element for camera feed */}
         <CameraView 
           stream={stream} 
           isCameraReady={isCameraReady} 
-          show={!captureResult.image} 
+          show={!captureResult.image}
+          videoRef={videoRef}
         />
         
         {/* Canvas for capturing and displaying the photo */}
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover absolute inset-0"
           style={{ display: "none" }}
         />
         

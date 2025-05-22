@@ -7,7 +7,7 @@ import { imageApi } from "@/services/apiService";
 
 const CaptureHistory: React.FC = () => {
   const { user } = useAuth();
-  const [images, setImages] = useState<Array<{ id: string; imageData: string; timestamp: string }>>([]);
+  const [images, setImages] = useState<Array<{ filename: string; imageData: string; upload_date: string }>>([]);
   const [loading, setLoading] = useState(true);
   
   // دریافت تصاویر از API
@@ -18,7 +18,7 @@ const CaptureHistory: React.FC = () => {
       setLoading(true);
       try {
         // فعلاً از تابع محلی استفاده می‌کنیم تا در آینده به API متصل شود
-        const userImages = getUserImages(user.id);
+        const userImages = await getUserImages(user.id);
         setImages(userImages);
       } catch (error) {
         console.error("خطا در بارگیری تصاویر:", error);
@@ -32,7 +32,7 @@ const CaptureHistory: React.FC = () => {
   
   // مرتب‌سازی تصاویر بر اساس زمان (جدیدترین ابتدا)
   const sortedImages = [...images].sort((a, b) => 
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
   );
 
   if (loading) {
@@ -70,17 +70,17 @@ const CaptureHistory: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sortedImages.map((image) => (
-          <Card key={image.id} className="overflow-hidden border-government-primary/10 hover:border-government-primary/30 transition-colors">
+          <Card key={image.filename} className="overflow-hidden border-government-primary/10 hover:border-government-primary/30 transition-colors">
             <div className="aspect-video bg-muted">
               <img
                 src={image.imageData}
-                alt={`تصویر ثبت شده در ${image.timestamp}`}
-                className="w-full h-full object-cover"
+                alt={`تصویر ثبت شده در ${image.upload_date}`}
+                className="object-cover rounded-lg h-fit w-fit"
               />
             </div>
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">
-                ثبت شده در {formatPersianDate(new Date(image.timestamp))}
+                ثبت شده در {formatPersianDate(new Date(image.upload_date))}
               </p>
             </CardContent>
           </Card>

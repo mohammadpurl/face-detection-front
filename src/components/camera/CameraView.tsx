@@ -1,28 +1,29 @@
-
 import React, { useRef, useEffect } from "react";
 
 interface CameraViewProps {
   stream: MediaStream | null;
   isCameraReady: boolean;
   show: boolean;
+  videoRef?: React.RefObject<HTMLVideoElement>;
 }
 
-const CameraView: React.FC<CameraViewProps> = ({ stream, isCameraReady, show }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+const CameraView: React.FC<CameraViewProps> = ({ stream, isCameraReady, show, videoRef }) => {
+  const internalVideoRef = useRef<HTMLVideoElement>(null);
+  const actualVideoRef = videoRef || internalVideoRef;
   
   // Connect stream to video element
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
+    if (actualVideoRef.current && stream) {
+      actualVideoRef.current.srcObject = stream;
     }
-  }, [stream]);
+  }, [stream, actualVideoRef]);
 
   if (!show) return null;
   
   return (
     <>
       <video
-        ref={videoRef}
+        ref={actualVideoRef}
         className="w-full h-full object-cover"
         autoPlay
         playsInline

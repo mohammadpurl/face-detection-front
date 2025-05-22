@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
                   لطفاً چهره خود را درون راهنما قرار داده و از نور کافی اطمینان حاصل کنید.
                   سیستم به صورت خودکار کیفیت تصویر را بررسی می‌کند.
                 </p>
-                <FaceCamera onCapture={handleCapture} />
+                <FaceCamera onCapture={handleCapture} active={activeTab === "camera"} />
               </div>
             </TabsContent>
             
